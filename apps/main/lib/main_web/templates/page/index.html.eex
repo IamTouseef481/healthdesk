@@ -1,0 +1,12 @@
+<link rel="icon" href="https://raw.githubusercontent.com/HealthdeskAI/healthdesk-ai/master/apps/main/assets/static/images/healthdesk.png?token=AHWZN6WXNYXN5WGF72SBWIK6D7HFE" />
+<title>Healthdesk.ai - Admin Portal</title>
+
+<div class="empty-state-container">
+    <h1 class="state-header">Healthdesk.ai Admin Portal</h1>
+    <p class="state-description lead">Build deeper relationships with your members and guests.</p>
+    <div class="state-action">
+        <div class="text-center pt-3">
+            Click <a href="/login" class="link">here</a> to login.
+        </div>
+    </div>
+</div>

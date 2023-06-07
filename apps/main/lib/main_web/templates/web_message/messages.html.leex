@@ -1,0 +1,81 @@
+<div class="chat-div">
+    <div id="scroll-message" class="bg-white scrollable">
+        <%= for message <- assigns[:messages] do %>
+        <%= if message.phone_number == @original_number do %>
+        <div class="media my-3 w-75 ml-auto">
+            <div class="media-body">
+                <div class="bg-p rounded py-3 px-3 mb-0" phx-click="test">
+                    <p class="text-small mb-0 text-receive text-white"><%= message.message %></p>
+                </div>
+                <p class="small mb-0 text-muted">You<span> - </span><%= MainWeb.Helper.Formatters.format_date(message.sent_at) %></p>
+            </div>
+        </div>
+        <% else %>
+        <%= if !String.starts_with?(message.message, "CLOSED") do %>
+        <div class="media my-3 w-75">
+            <div class="media-body">
+                <div class="bg-s rounded py-3 px-3">
+                    <p class="text-small mb-0 text-receive"><%= message.message %></p>
+                </div>
+                <p class="small mb-0 text-muted">
+                    <%= if @member && @member.user.first_name, do: @member.user.first_name, else: @location.location_name %>
+                    <span> - </span><%= MainWeb.Helper.Formatters.format_date(message.sent_at) %>
+                </p>
+            </div>
+        </div>
+        <% end %>
+    <% end %>
+<% end %>
+
+        <%= if assigns[:typing] do %>
+            <div class="conversation-meta">
+                <p class="ticontainer">
+                    <%name = if @member && @member.user.first_name, do: @member.user.first_name, else: @location.location_name %>
+                    <span><%=name%> is typing </span>
+                    <span class="tiblock">
+                            <span class="tidot"></span>
+                            <span class="tidot"></span>
+                            <span class="tidot"></span>
+                        </span>
+                </p>
+        </div>
+
+        <% end %>
+    </div>
+</div>
+<!-- Typing area -->
+
+<%= form_for :foo, tsi_path(@socket, :update, @api_key, @convo_id), [method: "put", class: "bg-light fixed-bottom shadow-lg", id: "123"], fn f -> %>
+<div class="input-group">
+    <%= text_input f, :message, class: "form-control bg-i rounded-0 border-0 py-4 bg-s", placeholder: "Type a message", phx_focus: :focused, phx_blur: :blured, phx_click: :focused%>
+    <div class="input-group-append">
+        <button id="button-addon2" type="submit" class="btn btn-link bg-i"> <i class="fa fa-paper-plane"></i></button>
+    </div>
+</div>
+<% end %>
+<script>
+    $('#123').on('submit', function() {
+        $(this).on('submit', function() {
+            return false;
+        });
+
+        $('#submit_button_id').hide();
+        $('#hidden_div_id').show();
+        return true;
+    });
+
+</script>
+<script>
+
+    $('#scroll-message').bind('DOMNodeInserted', function(e) {
+        $('html, body').animate({
+            scrollTop: $("#scroll-message").offset().top + $("#scroll-message")[0].scrollHeight
+        }, 200);
+    });
+
+    $( document ).ready(function() {
+        $('html, body').animate({
+            scrollTop: $("#scroll-message").offset().top + $("#scroll-message")[0].scrollHeight
+        }, 200);
+    });
+</script>

@@ -1,0 +1,134 @@
+/* This file is for your main application css. */
+@import "../node_modules/open-iconic/font/css/open-iconic-bootstrap.scss";
+@import "looper/scss/theme.scss";
+
+body {
+  background-color: $white;
+}
+
+b > a {
+  color: $gray-800;
+}
+
+.message {
+  position: relative;
+  top: -1.5rem;
+  margin-right: -2rem;
+  margin-left: -2rem;
+}
+.message-body {
+  margin-right: -2rem;
+  margin-left: -2rem;
+}
+
+.page.has-sidebar-open {
+  width: calc(100% - 22.5rem);
+  position: relative;
+}
+
+.hide-arrow::after {
+  display: none !important;
+}
+
+/* landing page */
+.cover {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  padding: 3rem 0;
+}
+
+
+/* search bar */
+.top-bar-item-search {
+  flex: 1;
+
+  &.top-bar-item-search {
+    max-width: 600px;
+  }
+}
+ 
+@media (min-width:980px) {
+.user-avatar-wrapper {
+  padding-left: 40px;
+}
+}
+.user-avatar-wrapper {
+  display: block;
+
+  .user-avatar {
+    border: 2px solid $gray-600;
+    float: left;
+  }
+
+  span, b {
+    display: block;
+    padding-left: 25px;
+  }
+}
+
+/* Conversations */
+.section-menu {
+  background: $white;
+  position: relative;
+  top: -1.5rem;
+  margin-left: -2rem;
+  margin-right: -2rem;
+
+  .nav {
+    margin: 0;
+    padding-left: 2rem;
+
+    .nav-link {
+      font-weight: 700;
+      color: $gray-800;
+    }
+  }
+}
+
+.menu-item.active > .menu-link {
+  color: $primary;
+}
+
+.table.no-first-border {
+  tbody > tr:first-child td {
+    border-top: 0;
+  }
+}
+
+.dropdown {
+  .dropdown-item.disabled {
+    color: #ddd;
+  }
+}
+
+// messages
+.conversation-inbound .conversation-message-skip-avatar {
+  padding-left: 0;
+
+  .conversation-message-text {
+    border-radius: 10px;
+    color: $gray-800;
+    background: $gray-100;
+    box-shadow: none;
+    border: 1px solid $gray-200;
+    font-weight: 500;
+  }
+}
+
+.conversation-outbound {
+  padding-right: 1rem;
+
+  .conversation-avatar + .conversation-message .conversation-message-text {
+    border-radius: 10px;
+    color: $gray-800;
+    background: $gray-100;
+    box-shadow: none;
+    border: 1px solid $gray-200;
+    font-weight: 500;
+  }
+
+}

@@ -1,0 +1,199 @@
+
+<%= if @loading == true do %>
+  <div id="loading">
+      <div class="lds-facebook"><div></div><div></div><div></div></div>
+  </div>
+
+<% end %>
+
+<div class="page has-sidebar has-sidebar-fluid has-sidebar-expand-xl" phx-hook="ReloadTable" id="sidebar_hook">
+    <!-- Message List -->
+    <%= if assigns[:open_conversation] || assigns[:searching]  do %>
+    <div class="page-inner page-inner-fill position-relative" >
+        <div class="">
+            <button type="button" class="btn btn-primary btn-floated position-absolute" data-toggle="dropdown" data-target="" title="Add new client"><i class="fa fa-plus"></i></button>
+            <div class="dropdown-menu dropdown-menu-right" x-placement="top-end" style="position: absolute; will-change: top, left; top: -59px; left: -91px;">
+                <div class="dropdown-arrow mr-n1"></div>
+                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#newMsg">New Message</button>
+                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#newTicket">New Ticket</button>
+            </div>
+        </div>
+         <!-- .list-group -->
+            <header class="page-navs bg-white shadow-sm d-flex justify-content-between px-2">
+                <%= text_input :f, :filter_text, class: "form-control", phx_keyup: "filter_convo", placeholder: "Search..." , value: assigns[:search_string] %>
+            </header>
+
+        <%= live_component @socket, MainWeb.Live.ConversationComponent, conversations: @conversations, open_conversation: @open_conversation, user: @user, location_ids: @location_ids, page: @page, tab: @tab, loadmore: @loadmore, id: "convo_list_sidebar" %>
+    <!-- /board -->
+    </div>
+    <!-- Conversation Window -->
+
+    <div class="page-sidebar bg-light">
+        <div class="row m-0">
+            <!--Message Window-->
+            <div class="sidebar-section sidebar-section-fill page-inner-fill col-lg-8 p-0">
+                <!-- .message -->
+                <div class="message m-0" style="top:0 !important;">
+                    <!-- message header -->
+                    <!-- message body -->
+                    <!-- message publisher -->
+                        <%= live_component @socket, MainWeb.Live.MessageComponent, typing: assigns[:typing], online: assigns[:online], open_conversation: @open_conversation, user: @user, team_members: @team_members, mchangeset: @mchangeset, team_members_all: @team_members_all, dispositions: @dispositions, notes: @notes, saved_replies: @saved_replies, id: "message_body", started_by: assigns[:started_by] %>
+                    <!-- /message header -->
+                    <!-- /message body -->
+                    <!-- /message publisher -->
+                </div><!-- /.message -->
+            </div>
+            <!--Sidebar Window-->
+             <div class="col-lg-4 p-0  bg-white conversation_details" style="border-left: 1px solid rgba(34,34,48,.1);height: calc(100vh - 3.5rem);overflow-y:scroll;">
+                <!-- .sidebar-header -->
+                <header class="sidebar-header d-sm-none">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a class="prevent-default" href="#" id="close_side_toggle"><i
+                                    class="breadcrumb-icon fa fa-angle-left mr-2"></i>Back</a>
+                        </li>
+                    </ol>
+                </header><!-- /.sidebar-header -->
+                <!-- .nav-tabs -->
+                <ul class="nav nav-tabs nav-fill bg-white shadow-sm border-bottom" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link <%= if @tab1 == "details", do: " active",else: ""  %>" phx-click="tab1" phx-value-tab="details" data-toggle="tab" href="#team-profile" role="tab"
+                           aria-controls="team-profile" aria-selected="true">Details</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= if @tab1 == "notes", do: " active",else: ""  %>" phx-click="tab1" phx-value-tab="notes" data-toggle="tab" href="#message-files" role="tab"
+                           aria-controls="message-files" aria-selected="false">Notes</a>
+                    </li>
+                </ul><!-- /.nav-tabs -->
+                <!-- .sidebar-section-fill -->
+                 <%= live_component @socket, MainWeb.Live.SidebarComponent, open_conversation: @open_conversation, tab1: @tab1, team_members: @team_members, saved_replies: @saved_replies, notes: @notes, id: "message_sidebar" %>
+            </div>
+
+
+        </div>
+    </div>
+    <% else %>
+    <div class="empty-inbox">
+        <div>
+            <h3>Inbox Zero</h3>
+            <span>Ahhh... that feels good.</span>
+        </div>
+    </div>
+    <% end%>
+
+</div>
+<div class="modal fade" id="newTicket" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Create a new Ticket</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <%= f = form_for @tchangeset, "#", [ phx_submit: :new_ticket, id: "ticket_form"] %>
+                <%= hidden_input f, :user_id, value: @user.id %>
+                <fieldset>
+                    <div class="form-group">
+                        <label for="unknown">Location</label>
+                        <%= select f, :location_id, Enum.map(@locations, &{&1.location_name, &1.id}),prompt: "Select a Location",required: true, class: "custom-select"  %>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="unknown">Assign to a teammate</label>
+                        <%= select f, :team_member_id, @team_members_all,prompt: "Select Teammate ",required: true, class: "custom-select"  %>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <%= select f, :priority,
+                        [{"P0 - Blocker", "P0"},{"P1 - Critical","P1"},{"P2 - Critical","P2"},{"P3 - Major","P3"},{"RFE - Request for Enhancement","RFE"}],
+                        prompt: "Select Priority ",required: true, class: "custom-select"  %>
+                    </div>
+                    <div class="form-group">
+                        <label for="tf6">Description</label>
+                        <%= textarea f, :description, prompt: "Enter description",required: true,  rows: "5", class: "form-control"  %>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+
+                </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="newMsg" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true" >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Send a Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <%= f = form_for @changeset, "#", [ phx_submit: :new_msg,  novalidate: :novalidate] %>
+                <fieldset>
+                    <div class="form-group">
+                        <label for="locationMsg">Location</label>
+                        <select id="locationMsg"
+                                name="location_id"
+                                class="form-control"
+                                data-placeholder="Select a Location"
+                                data-allow-clear="true"
+                                aria-hidden="true">
+                            <%= for l <- @locations do %>
+                            <option value="<%= l.id %>"> <%= l.location_name %></option>
+                            <% end %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+
+                        <label for="unknown">To</label>
+                        <input type="tel" id="phone" name="original_number"  phx-hook="Phone" class="form-control">
+
+
+                    </div>
+                    <div class="form-group">
+                        <label for="tf6">Message</label>
+                        <%= textarea f, :message, class: "form-control", place_holder: "Type a message", rows: 5, id: "tf6" %>
+                    </div>
+
+                </fieldset>
+
+                <button type="submit" class="btn btn-primary float-right" >Send</button>
+                <button type="button" class="btn btn-secondary float-right" data-dismiss="modal">Cancel</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .log-divider > span {
+        z-index: 1 !important;
+    }
+
+    @media (min-width: 1200px) {
+        .has-compact-menu .has-sidebar-expand-xl.has-sidebar-fluid .page-inner {
+            margin-right: calc(100vw - 24.5rem) !important;
+        }
+
+        .has-compact-menu .has-sidebar-expand-xl.has-sidebar-fluid .page-sidebar {
+            width: calc(100vw - 24.5rem) !important;
+            max-width: calc(100vw - 24.5rem) !important;
+        }
+
+    }
+</style>
+

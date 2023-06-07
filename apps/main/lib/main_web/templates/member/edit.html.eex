@@ -1,0 +1,12 @@
+<header class="page-title-bar">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="<%= team_member_path(@conn, :index, @team_id) %>"><i class="breadcrumb-icon fa fa-angle-left mr-2"></i>Members</a>
+            </li>
+        </ol>
+    </nav>
+    <h1 class="page-title">Edit Member</h1>
+</header>
+
+<%= render "_form.html", data: @changeset, action: team_member_path(@conn, :update, @team_id, @changeset.data), team_id: @team_id, locations: @locations, conn: @conn, errors: @errors %>

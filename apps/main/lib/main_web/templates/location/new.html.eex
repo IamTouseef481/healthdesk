@@ -1,0 +1,12 @@
+<header class="page-title-bar">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">
+                <a href="<%= team_location_path(@conn, :index, @team_id) %>"><i class="breadcrumb-icon fa fa-angle-left mr-2"></i>Locations</a>
+            </li>
+        </ol>
+    </nav>
+    <h1 class="page-title">New Location</h1>
+</header>
+
+<%= render "_form.html", data: @changeset, action: team_location_path(@conn, :create, @team_id), conn: @conn, errors: @errors, phone_number: @phone_number%>

@@ -1,0 +1,76 @@
+<%= live_render(@conn, MainWeb.Live.HeaderView, session: %{"current_user" => @current_user}, id: "topbar") %>
+<aside class="app-aside app-aside-expand-md app-aside-dark">
+    <div class="aside-content">
+        <header class="aside-header d-block d-md-none">
+
+        </header><!-- /.aside-header -->
+        <div class="aside-menu overflow-hidden">
+            <nav id="stacked-menu" class="stacked-menu">
+                <ul class="menu">
+                    <li class="menu-item">
+                        <a class="menu-link" href="/admin">
+                            <span class="menu-icon oi oi-home"></span>
+                            <span class="menu-text">Dashboard</span>
+                        </a>
+
+                    </li>
+                    <li class="menu-item has-child">
+                        <a class="menu-link" href="#">
+                            <span class="menu-icon oi oi-chat"></span>
+                            <span class="menu-text">Conversations</span>
+                            <span class="badge badge-subtle badge-success">
+                                <%= live_render(@conn, MainWeb.Live.OpenConverationsView, session: %{"current_user" => @current_user, "convo_type" => :convo}, id: "conversation_count") %>
+                            </span>
+                        </a>
+                        <ul class="menu">
+
+                            <li class="menu-item <%= if assigns[:tab] == "active",do: "has-active",else: "" %>">
+                                <a href="/admin/conversations/active" class="menu-link">Active<span class="badge badge-subtle badge-success">
+                                <%= live_render(@conn, MainWeb.Live.OpenConverationsView, session: %{"current_user" => @current_user, "convo_type" => :active}, id: "conversation_count") %>
+                            </span></a>
+                            </li>
+                            <li class="menu-item <%= if assigns[:tab] == "assigned",do: "has-active",else: "" %>">
+                                <a href="/admin/conversations/assigned" class="menu-link">Assigned<span class="badge badge-subtle badge-success">
+                                <%= live_render(@conn, MainWeb.Live.OpenConverationsView, session: %{"current_user" => @current_user, "convo_type" => :assigned}, id: "conversation_count") %>
+                            </span></a>
+                            </li>
+                            <li class="menu-item <%= if assigns[:tab] == "closed",do: "has-active",else: "" %>">
+                                <a href="/admin/conversations/closed" class="menu-link">Closed<span class="badge badge-subtle badge-success">
+                                <%= live_render(@conn, MainWeb.Live.OpenConverationsView, session: %{"current_user" => @current_user, "convo_type" => :closed}, id: "conversation_count") %>
+                            </span></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="menu-item <%= if assigns[:tab] == "campaign",do: "has-active",else: "" %>">
+                        <a class="menu-link" href="/admin/campaigns">
+                            <span class="menu-icon oi oi-laptop"></span>
+                            <span class="menu-text">Campaigns</span>
+                        </a>
+                    </li>
+                    <li class="menu-item <%= if assigns[:tab] == "ticket",do: "has-active",else: "" %>">
+                        <a class="menu-link" href="/admin/tickets">
+                            <span class="menu-icon oi oi-phone"></span>
+                            <span class="menu-text">Tickets</span>
+                        </a>
+                    </li>
+                    <li class="menu-item ">
+                        <%= if @current_user.role == "admin" do %>
+                        <%= link {:safe, "<span class=\"menu-icon oi oi-book\"></span>
+                            <span class=\"menu-text\">Knowledge Base</span>"}, to: team_path(@conn, :index), class: "menu-link" %>
+                    <% end %>
+                        <%= if @current_user.role in ["location-admin", "team-admin"] do %>
+                        <%= link {:safe, "<span class=\"menu-icon oi oi-book\"></span>
+                            <span class=\"menu-text\">Knowledge Base</span>"},
+                            to: team_location_path(@conn, :index, @current_user.team_member.team_id), class: "menu-link" %>
+                    <% end %>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</aside>
+<main class="app-main">
+    <div class="wrapper">
+        <%= @inner_content %>
+    </div>
+</main>

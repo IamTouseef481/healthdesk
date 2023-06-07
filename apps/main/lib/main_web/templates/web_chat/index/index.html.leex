@@ -1,0 +1,24 @@
+<%= if @location.web_greeting != "" do %>
+  <h2><%= @location.web_greeting %></h2>
+<% else %>
+  <h2>Welcome to <%= @location.location_name %></h2>
+<% end %>
+
+<%=for message <- @messages do %>
+  <%= if "link" == message.type do %>
+    <%= for link <- message.links do %>
+      <div style="width: 90%; padding: 5px; margin: 5px; background-color: #9B3426;border-radius: 5px;" phx-click="link-click" phx-value="<%= link.value %>">
+        <a href="#" style="color: white;"><%= link.text %></a>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="padding: 5px;">
+      <b><%= message.user %>:</b>
+      <%= if message.direction == "outbound" do %>
+        <%= raw(message.text) %>
+      <% else %>
+        <%= message.text %>
+      <% end %>
+    </p>
+  <% end %>
+<% end %>

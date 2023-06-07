@@ -1,0 +1,173 @@
+<div class="panel-body">
+    <section id="base-style" class="card">
+        <div class="card-body">
+            <%= form_for @data, @action, fn f -> %>
+
+                <fieldset>
+                    <div class="form-group">
+                        <label>Location Name</label>
+                        <%= text_input f, :location_name, class: "form-control" %>
+                        <%#= error_tag @errors, :team_name %>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <%= text_input f, :phone_number, class: "form-control", disabled: true, value: @phone_number %>
+                        <%#= error_tag @errors, :website %>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Address 1</label>
+                        <%= text_input f, :address_1, class: "form-control" %>
+
+                        <label>Address 2</label>
+                        <span class="badge badge-secondary"><em>Optional</em></span>
+                        <%= text_input f, :address_2, class: "form-control" %>
+                        <label>City</label>
+                        <%= text_input f, :city, class: "form-control" %>
+                        <label>State</label>
+                        <%=
+                        select f,
+                        :state,
+                        ["AL",
+                        "AK",
+                        "AZ",
+                        "AR",
+                        "CA",
+                        "CO",
+                        "CT",
+                        "DE",
+                        "FL",
+                        "GA",
+                        "HI",
+                        "ID",
+                        "IL",
+                        "IN",
+                        "IA",
+                        "KS",
+                        "KY",
+                        "LA",
+                        "ME",
+                        "MD",
+                        "MA",
+                        "MI",
+                        "MN",
+                        "MS",
+                        "MO",
+                        "MT",
+                        "NE",
+                        "NV",
+                        "NH",
+                        "NJ",
+                        "NM",
+                        "NY",
+                        "NC",
+                        "ND",
+                        "OH",
+                        "OK",
+                        "OR",
+                        "PA",
+                        "RI",
+                        "SC",
+                        "SD",
+                        "TN",
+                        "TX",
+                        "UT",
+                        "VT",
+                        "VA",
+                        "WA",
+                        "WV",
+                        "WI",
+                        "WY"],
+                        class: "form-control"
+                        %>
+                        <label>Postal Code</label>
+                        <%= text_input f, :postal_code, class: "form-control" %>
+                        <label>Timezone</label>
+                        <%=
+                        select f,
+                        :timezone,
+                        ["Pacific": "PST8PDT", "Mountain": "MST7MDT", "Central": "CST6CDT", "Eastern": "EST5EDT"],
+                        class: "form-control"
+                        %>
+                    </div>
+                    <div class="form-group">
+                        <label>API KEY</label>
+                        <%= text_input f, :api_key, class: "form-control", readonly: true %>
+                        <style>
+                         .checkboxes label {
+                             display: inline-block;
+                             padding-right: 10px;
+                             margin: 10px 0px 10px;
+                             white-space: nowrap;
+                         }
+                         .checkboxes input {
+                             vertical-align: middle;
+                         }
+                         .checkboxes label span {
+                             vertical-align: middle;
+                         }
+                        </style>
+                        <span>
+                            <div class="checkboxes">
+                                <label for="web_chat">
+                                    <span>Web Enabled?</span>
+                                    <%= checkbox f, :web_chat %>
+                                </label>
+                            </div>
+                        </span>
+                        <label>Web Greeting</label>
+                        <%= text_input f, :web_greeting, class: "form-control" %>
+                        <label>Web Handle</label>
+                        <%= text_input f, :web_handle, class: "form-control" %>
+                        <label>Slack Integration</label>
+                        <%= text_input f, :slack_integration, class: "form-control" %>
+                        <label>Facebook Messenger ID</label>
+                        <%= text_input f, :messenger_id, class: "form-control" %>
+                        <label>Default Message</label>
+                        <%= textarea f, :default_message, class: "form-control" %>
+
+                    <%= if @conn.assigns.current_user.role == "admin" && @conn.assigns.team.use_mindbody do %>
+                        <label>Mindbody Location ID</label>
+                        <%= text_input f, :mindbody_location_id, class: "form-control" %>
+                    <% end %>
+                        <label>Google Token</label>
+                        <%= text_input f, :google_token, class: "form-control", disabled: true %>
+                        <label>Google Refresh Token</label>
+                        <%= text_input f, :google_refresh_token, class: "form-control",disabled: true %>
+                        <label>Calender ID</label>
+                        <%= text_input f, :calender_id, class: "form-control" %>
+                        <label>Google Calender URL</label>
+                        <%= text_input f, :calender_url, class: "form-control" %>
+                        <label>Google Form URL</label>
+                        <%= text_input f, :form_url, class: "form-control" %>
+                        <%= if (MainWeb.Auth.Guardian.Plug.current_resource(@conn).role=="admin") do %>
+                        <label>Maximum Automation Limit</label>
+                        <%= text_input f, :automation_limit, class: "form-control", placeholder: 3 %>
+                        <%end%>
+                        <label>Facebook Page ID</label>
+                        <%= text_input f, :facebook_page_id, class: "form-control", disabled: false %>
+                        <label>Facebook Token</label>
+                        <%= text_input f, :facebook_token, class: "form-control", disabled: true %>
+                        <label>Whatsapp Token</label>
+                        <%= text_input f, :whatsapp_token, class: "form-control", disabled: true %>
+                    </div>
+                    <div class="form-actions">
+                        <%= submit "Save", class: "btn btn-primary" %>
+                        <a id="addtime" href="/admin/teams/<%= @conn.assigns.team_id %>/locations/<%= @conn.assigns.location && @conn.assigns.location.id %>/remove" class="btn btn-secondary ">Remove Configuration </a>
+                    </div>
+                </fieldset>
+            <% end %>
+            <br/>
+            <a class="btn btn-primary btn-lg" href="/admin/teams/<%= @conn.assigns.team_id %>/locations/<%= @conn.assigns.location && @conn.assigns.location.id %>/edit/google">
+                Sign in with Google
+            </a>
+            <a class="btn btn-primary btn-lg" href="/admin/teams/<%= @conn.assigns.team_id %>/locations/<%= @conn.assigns.location && @conn.assigns.location.id %>/edit/facebook">
+                Sign in with Facebook
+            </a>
+            <a class="btn btn-primary btn-lg" href="/admin/teams/<%= @conn.assigns.team_id %>/locations/<%= @conn.assigns.location && @conn.assigns.location.id %>/edit/whatsapp">
+                Sign in with Whatsapp
+            </a>
+        </div>
+    </section>
+</div>

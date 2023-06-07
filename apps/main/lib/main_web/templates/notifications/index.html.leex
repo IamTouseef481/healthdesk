@@ -1,0 +1,33 @@
+<ul class="header-nav nav">
+    <!-- .nav-item -->
+    <li class="nav-item dropdown header-nav-dropdown <%= @read && "has-notified" %>">
+        <a class="nav-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="oi oi-envelope-open"></span>
+        </a> <!-- .dropdown-menu -->
+        <div class="dropdown-menu dropdown-menu-rich dropdown-menu-right">
+            <div class="dropdown-arrow"></div>
+            <h6 class="dropdown-header stop-propagation">
+                <span>Notifications <span class="badge"></span></span>
+            </h6><!-- .dropdown-scroll -->
+            <div class="dropdown-scroll perfect-scrollbar">
+                <%= for n <- @notifications do %>
+                <%= if n.conversation do %>
+                <a href="#" class="dropdown-item <%= !n.read && "unread" %>" phx-click="conversation" phx-value-cid="<%= n.conversation.id %>"
+                   phx-value-nid="<%= n.id %>">
+                    <% else %>
+                    <a href="#" class="dropdown-item <%= !n.read && "unread" %>" phx-click="conversation" phx-value-tid="<%= n.ticket.id %>"
+                       phx-value-nid="<%= n.id %>">
+                        <% end %>
+                        <div class="user-avatar">
+                            <img src="<%= if @current_user.avatar != "", do: @current_user.avatar, else: "/images/unknown-profile.jpg" %>" alt="">
+                        </div>
+                        <div class="dropdown-item-body">
+                            <p class="text">  <%= n.sender.first_name %> <%= n.sender.last_name %> <%= n.text %> </p><span
+                                class="date"><%= format_date(n.inserted_at) %></span>
+                        </div>
+                    </a>
+                    <% end %>
+            </div>
+        </div>
+    </li><!-- /.nav-item -->
+</ul>

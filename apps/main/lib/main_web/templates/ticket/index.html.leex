@@ -1,0 +1,253 @@
+<%= if @loading == true do %>
+<div id="loading">
+    <div class="lds-facebook"><div></div><div></div><div></div></div>
+</div>
+<% end %>
+<div class="page" phx-hook ="ReloadTable" id="tickets_page">
+    <div class="page-inner">
+        <header class="page-title-bar">
+            <div class="d-flex flex-column flex-md-row">
+                <h1 class="page-title"> Tickets </h1>
+
+                <div class="ml-auto d-flex">
+                    <!-- .dropdown -->
+                    <button class="btn btn-primary ml-2" data-toggle="modal" data-target="#newTicket">New Ticket
+                    </button>
+
+                </div><!-- /.dropdown -->
+            </div><!-- /.dropdown -->
+
+        </header>
+        <div class="row">
+            <!-- grid column -->
+            <div class="col-md-12 d-flex">
+                <div class="card card-fluid flex-fill">
+                    <div class="card-body">
+                        <!-- .form-group -->
+                        <!-- /.form-group -->
+                        <!-- .table-responsive -->
+                        <div class="table-responsive">
+                            <table id="Tickets2<%= @table_id %>" class=" Tickets2 table  table-hover">
+
+                                <thead class="bg-light">
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Assigned</th>
+                                    <th>Description</th>
+                                    <th>Priority</th>
+                                    <th>Location</th>
+                                    <th>Last Action</th>
+                                    <th>Created By</th>
+                                    <td></td>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <%= for t <- @tickets do %>
+                                <tr phx-click="edit_ticket" phx-value-id="<%= t.id %>" >
+                                    <td class="align-middle"><span class="badge badge-subtle badge-alert"><%= t.status %></span></td>
+                                    <td class="align-middle"><%= format_date t.inserted_at %></td>
+                                    <td class="align-middle"><%= t.team_member.user.first_name %> <%= t.team_member.user.last_name %></td>
+                                    <td class="align-middle"><%= t.description %></td>
+                                    <td class="align-middle"><%= t.priority %></td>
+                                    <td class="align-middle"><%= t.location.location_name %></td>
+                                    <td class="align-middle"><%= format_date t.updated_at %></td>
+                                    <td class="align-middle"><%= t.user.first_name %> <%= t.user.last_name %></td>
+                                    <td class="align-middle"><a href="#" phx-click="edit_ticket" phx-value-id="<%= t.id %>" ><i class="far fa-eye"></i></a></td>
+                                </tr>
+                                <% end %>
+                                </tbody>
+
+                            </table>
+                        </div><!-- /.table-responsive -->
+                    </div>
+                </div><!-- /grid column -->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- New Ticket Modal-->
+<div class="modal fade" id="newTicket" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Create a new Ticket</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <%= f = form_for @changeset, "#", [ phx_submit: :new_ticket] %>
+                <%= hidden_input f, :user_id, value: @user.id %>
+                <fieldset>
+                    <div class="form-group">
+                        <label for="unknown">Location</label>
+                        <%= select f, :location_id, Enum.map(@locations, &{&1.location_name, &1.id}),prompt: "Select a Location",required: true, class: "custom-select"  %>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="unknown">Assign to a teammate</label>
+                        <%= select f, :team_member_id, @team_members_all,prompt: "Select Teammate ",required: true, class: "custom-select"  %>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <%= select f, :priority,
+                        [{"P0 - Blocker", "P0"},{"P1 - Critical","P1"},{"P2 - Major","P2"},{"P3 - Minor","P3"},{"RFE - Request for Enhancement","RFE"}],
+                        prompt: "Select Priority ",required: true, class: "custom-select"  %>
+                    </div>
+                    <div class="form-group">
+                        <label for="tf6">Description</label>
+                        <%= textarea f, :description, prompt: "Enter description",required: true,  rows: "5", class: "form-control"  %>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+
+                </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- .modal -->
+<div class="modal modal-drawer fade" id="editTicket" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" aria-labelledby="modalViewTaskLabel"
+     aria-hidden="true">
+    <!-- .modal-dialog -->
+    <div class="modal-dialog modal-lg modal-drawer-right" role="document">
+        <!-- .modal-content -->
+        <div class="modal-content">
+            <!-- .modal-body -->
+            <div class="modal-body p-3 p-lg-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active">
+                        <a href="#" phx-click="close_edit"><i class="breadcrumb-icon fa fa-angle-left mr-2"></i>Back</a>
+                    </li>
+                </ol>
+                <h5 id="modalViewTaskLabel" class="modal-title"> <%= @open_ticket.status %> </h5>
+                <hr>
+                <p class="text-muted"> Created on <%= format_date_time_split(@open_ticket.inserted_at) %> by <a href="#" class="link-text ml-1"
+                                                                                                                data-toggle="tooltip"><span
+                        class="user-avatar user-avatar-xs">
+                                        <%= if Ecto.assoc_loaded?(@open_ticket.user) do %>
+                    <img src="<%= if @open_ticket.user.avatar != "", do: @open_ticket.user.avatar, else: "/images/unknown-profile.jpg" %>" alt=""></span>
+                    <%= Enum.join([@open_ticket.user.first_name||"", @open_ticket.user.last_name||""], " ") %>
+                                <% else %>
+                    <img src="/images/unknown-profile.jpg" alt=""></span>"Unknown user"
+                    <% end %> </a>
+                </p>
+                <hr>
+                <div class="task-description">
+                    <p> <%= @open_ticket.description %> </p>
+                </div><!-- grid row -->
+                <div class="row my-3">
+                    <!-- grid column -->
+                    <div class="col-6 mb-3">
+                        <!-- .time-tracking -->
+                        <div class="time-tracking">
+                            <h6> Status </h6>
+                            <%= f = form_for @changeset, "#", [phx_change: :update_ticket] %>
+                            <%= hidden_input f, :id, value: @open_ticket.id, id: "ticket_id0" %>
+                            <%= select f, :status,
+                        [{"New","new"},{"Open","open"},{"Pending","pending"},{"Resolved","resolved"},{"Closed","closed"}, {"Archive","archive"}],
+                        prompt: "Select Status ",required: true,id: "priority_select", class: "custom-select", value: @open_ticket.status  %>
+                            <form/>
+                        </div><!-- /.time-tracking -->
+                    </div><!-- /grid column -->
+                    <!-- grid column -->
+                    <div class="col-6 mb-3">
+                        <h6> Last Action </h6>
+                        <p><%= format_date @open_ticket.updated_at %></p>
+                    </div><!-- /grid column -->
+                    <!-- grid column -->
+                    <div class="col-6 mb-3">
+                        <h6> Priority </h6>
+                        <div class="form-group">
+                            <%= f = form_for @changeset, "#", [phx_change: :update_ticket] %>
+                            <%= hidden_input f, :id, value: @open_ticket.id, id: "ticket_id1" %>
+                            <%= select f, :priority,
+                        [{"P0 - Blocker", "P0"},{"P1 - Critical","P1"},{"P2 - Major","P2"},{"P3 - Minor","P3"},{"RFE - Request for Enhancement","RFE"}],
+                        prompt: "Select Priority ",required: true, class: "custom-select", value: @open_ticket.priority  %>
+                            <form/>
+                            </select>
+                        </div>
+                    </div><!-- /grid column -->
+                    <!-- grid column -->
+                    <div class="col-6 mb-3">
+                        <!-- .assignee -->
+                        <div class="assignee">
+                            <h6> Assigned To </h6>
+                            <div class="avatar-group">
+                                <%= f = form_for @changeset, "#", [phx_change: :update_ticket] %>
+                                <%= hidden_input f, :id, value: @open_ticket.id, id: "ticket_id2" %>
+                                <%= select f, :team_member_id, @team_members_all,id: "edit_team_member",prompt: "Select Teammate ",required: true, class: "custom-select", value: @open_ticket.team_member_id  %>
+                                <form/>
+
+                            </div>
+                        </div><!-- /.assignee -->
+                    </div><!-- /grid column -->
+                </div><!-- /grid row -->
+                <!-- .form-group -->
+                <div class="form-group">
+                    <h6> Comments </h6>
+                    <!-- save task todos to this input hidden -->
+                    <input type="hidden" name="vtTodos"> <!-- .todo-list -->
+                    <div id="vtTodos" class="todo-list">
+                        <%= for n <- @open_ticket.notes do %>
+                        <div class="p-1">
+                            <p><%= n.note %>
+                                <span class="meta">( <%= n.user.first_name %> <%= format_date n.inserted_at %> )</span>
+                            </p>
+                        </div>
+                        <% end %>
+                    </div>
+
+                </div><!-- /.form-group -->
+                <hr>
+                <form></form>
+                <!-- .media -->
+                <div class="media">
+                    <div class="media-body">
+                        <!-- .publisher -->
+                        <div class="publisher keep-focus focus"><!-- .publisher-input -->
+                            <%= f = form_for @nchangeset, "#", [ phx_submit: :save_note] %>
+                            <div class="publisher-input">
+                                <%= hidden_input f, :user_id, value: @user.id,id: "ticket_id3" %>
+                                <%= hidden_input f, :ticket_id, value: @open_ticket.id, id: "ticket_id3" %>
+                                <%= textarea f, :note, prompt: "Enter note",required: true, id: "note_input",  rows: "3", class: "form-control"  %>
+                            </div><!-- /.publisher-input -->
+                            <!-- .publisher-actions -->
+                            <div class="publisher-actions">
+                                <!-- .publisher-tools -->
+                                <div class="publisher-tools mr-auto">
+                                    <div class="btn btn-light btn-icon fileinput-button">
+                                    </div>
+                                </div><!-- /.publisher-tools -->
+                                <button type="submit" class="btn btn-primary">Comment</button>
+                            </div><!-- /.publisher-actions -->
+                            </form>
+                        </div><!-- /.publisher -->
+                    </div><!-- /.media-body -->
+                </div><!-- /.media -->
+            </div><!-- /.modal-body -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div style="display: none" id="availableMembers">
+
+    <%= for x <- @team_members do %>
+    <p><span><%= x.id %></span><span><%= x.user.first_name <> " " <> x.user.last_name %></span></p>
+    <% end %>
+</div>

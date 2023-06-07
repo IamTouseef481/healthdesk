@@ -1,0 +1,1327 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+<div class="page"><div class="page-inner">
+    <%= if @current_user.role == "admin" do %>
+    <div class="metric-row">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <h2 class="metric-label"> TEAMS </h2>
+            <%=form_for :filters, admin_path(@conn, :index), fn f -> %>
+            <select class="form-control" id="team_id" name="team[id]" >
+                <%= unless @team_id do %>
+                <option name="all" selected value="-99">All Teams</option>
+                <% else %>
+                <option name="all" value="-99">All Teams</option>
+                <% end %>
+                <%= for team <- @teams do %>
+                <%= if team.id == @team_id do %>
+                <option selected value="<%= Enum.reduce(team.locations, "", fn location, acc -> acc <> location.id <> ","<> location.location_name <> "--"  end)  %>"><%= team.team_name %></option>
+                <% else %>
+                <option value="<%=Enum.reduce(team.locations, "", fn location, acc -> acc <> location.id <> ","<> location.location_name <> "--"  end) %>"><%= team.team_name %></option>
+                <% end %>
+                <% end %>
+            </select>
+
+            <div id="selectDiv">
+               <select data-selected-text-format="count" data-count-selected-text="({0}) Locations" title="All Locations"
+                       class="selectpicker form-control border border-dark dropdown bootstrap-select" multiple data-actions-box="true"
+                       data-live-search="true" name="filters[location_ids][]", id="locations"  >
+                   <%= if (@locations != nil) do%>
+                   <%= for location <- @locations do %>
+                   <option
+                           <%=
+                        case @location_ids do
+                          [] ->
+                          "selected"
+                          _ ->
+                          if (location.id in @location_ids)do
+                            "selected"
+                          end
+                        end %>
+                           value="<%= location.id %>"><%= location.location_name %>
+                   </option>
+                   <% end %>
+                   <% end %>
+               </select>
+            </div>
+
+            <style>
+                .dropdown.bootstrap-select {
+                    margin-top: 20px;
+                }
+                </style>
+
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <h2 class="metric-label"> From </h2>
+            <%= date_input f, :from, class: "form-control border border-dark", value: @from %>
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <h2 class="metric-label"> To </h2>
+            <%= date_input f, :to, class: "form-control border border-dark", value: @to %>
+            <button type="submit" class="btn btn-light border border-dark" style="float: right;  margin-top: 20px;">
+                <i style="color: black" class="fa fa-search"></i>
+            </button>
+        </div><!-- /metric column -->
+        <% end %>
+
+    </div>
+    <% end %>
+
+    <div class="metric-row">
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <div class="metric">
+                    <h2 class="metric-label"> LOCATIONS </h2>
+                    <p class="metric-value h3">
+                        <sub><i class="oi oi-fork"></i></sub> <span class="value">
+                        <%= @location_count |> format_comma_numbers %>
+                    </span>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <div class="metric">
+                    <h2 class="metric-label"> ADMINS </h2>
+                    <p class="metric-value h3">
+                        <sub><i class="oi oi-people"></i></sub> <span class="value">
+                        <%= @team_admin_count |> format_comma_numbers %>
+                    </span>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <div class="metric">
+                    <h2 class="metric-label"> TEAMMATES </h2>
+                    <p class="metric-value h3">
+                        <sub><i class="oi oi-people"></i></sub> <span class="value">
+                        <%= @teammate_count |> format_comma_numbers %>
+                    </span>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+    </div>
+    <%=form_for :filters, admin_path(@conn, :index), fn f -> %>
+    <%= if @current_user.role in ["team-admin", "location-admin"] do %>
+
+    <div class="row">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <h2 class="metric-label"> Locations </h2>
+            <select data-selected-text-format="count" data-count-selected-text="({0}) Locations" title="All Locations"
+                    class="selectpicker form-control border border-dark" style="" multiple data-actions-box="true"
+                    data-live-search="true" class="" name="filters[location_ids][]">
+                <%= for location <- @locations do %>
+                <option
+                        <%=
+                        case @location_ids do
+                          [] ->
+                          "selected"
+                          _ ->
+                          if (location.id in @location_ids)do
+                            "selected"
+                          end
+                        end %>
+                        value="<%= location.id %>"><%= location.location_name %>
+                </option>
+                <% end %>
+            </select>
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <h2 class="metric-label"> From </h2>
+            <%= date_input f, :from, class: "form-control border border-dark", value: @from %>
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-2">
+            <h2 class="metric-label"> To </h2>
+            <%= date_input f, :to, class: "form-control border border-dark", value: @to %>
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-1 mt-4">
+            <button type="submit" class="btn btn-light border border-dark">
+                <i style="color: black" class="fa fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <% end %>
+    <% end %>
+    <div class="metric-row">
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric" >
+                <%= if ((@role in ["admin"] and @team_id != nil)or @role in ["team-admin"]) do%>
+                <a href="admin/teams/<%=@team_id%>/dispositions"
+                   style = "position: absolute;top: 10px;
+                    right: 16px;z-index: 100;color:#666;"><i class="fas fa-edit"></i></a>
+                <% end %>
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Dispositions"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric" data-toggle="modal" data-target="#exampleModalLong">
+
+                    <h2 class="metric-label"> DISPOSITIONS </h2>
+                    <p class="metric-value h3">
+                    <span class="value"><%= Enum.filter(@dispositions, &(&1.name not in ["Call deflected", "Call Deflected", "Call Hang Up", "Call Transferred", "Missed Call Texted"])) |> Enum.map(&(&1.count)) |> Enum.sum() |> format_comma_numbers %>
+                    </span>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Avg. Per Day"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric">
+                    <h2 class="metric-label"> AVG. PER DAY </h2>
+                    <p class="metric-value h3">
+                    <span class="value">
+                        <%= format_comma_numbers(@dispositions_per_day.sessions_per_day) %>
+                    </span>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Responsiveness"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric">
+                    <h2 class="metric-label"> RESPONSIVENESS </h2>
+                    <p class="metric-value h3">
+                    <span class="value">
+                        <%= format_time_sec(@response_time)%>
+                    </span>
+                    </p>
+                    <p class="metric-label">
+                        <span>MEDIAN RESPONSE TIME</span></p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+    </div>
+    <div class="metric-row">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Calls Deflected Percentage"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric" data-toggle="modal" data-target="#exampleCallDeflectLong">
+                    <h2 class="metric-label"> CALLS DEFLECTED </h2>
+                    <p class="metric-value h3">
+                    <span class="value">
+                        <%= if @call_deflected == 0.0 do %>
+                        0%
+                        <% else %>
+                        <%= @call_deflected |> Decimal.from_float() |> Decimal.round(1) %>%
+                        <% end %>
+                    </span>
+                    </p>
+                    <p class="metric-label">
+                        <span>PERCENTAGE</span></p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Assisted Percentage"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric" data-toggle="modal" data-target="#exampleAssistLong">
+                    <h2 class="metric-label"> ASSISTED </h2>
+                    <p class="metric-value h3">
+                    <span class="value">
+                        <%= if @automated == 0.0 do %>
+                        0%
+                        <% else %>
+                        <%= @automated |> Decimal.from_float() |> Decimal.round(1) %>%
+                        <% end %>
+                    </span>
+                    </p>
+                    <p class="metric-label">
+                        <span>PERCENTAGE</span></p>
+                </div>
+            </div><!-- /.metric -->
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Tickets"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric">
+                    <h2 class="metric-label"> TICKETS </h2>
+                    <p class="metric-value h3">
+                    <span class="value">
+                        <%= @tickets_count %>
+                    </span>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+    </div>
+
+    <div class="metric-row">
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Missed Calls Texted"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric" data-toggle="modal" data-target="#exampleMissedCallLong">
+                    <h2 class="metric-label"> MISSED CALL TEXTED </h2>
+                    <p class="metric-value h3">
+                    <span class="value">
+                        <%= if @missed_call_texted == 0.0 do %>
+                        0%
+                        <% else %>
+                        <%= @missed_call_texted |> Decimal.from_float() |> Decimal.round(1) %>%
+                        <% end %>
+                    </span>
+                    </p>
+                    <p class="metric-label">
+                        <span>PERCENTAGE</span></p>
+                </div>
+            </div><!-- /.metric -->
+        </div>
+
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "New Leads"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric" data-toggle="modal" data-target="#exampleNewLeadsLong">
+                    <h2 class="metric-label"> NEW LEADS </h2>
+                    <p class="metric-value h3">
+                    <span class="value">
+                        <%= @new_leads%>
+                    </span>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div>
+    </div>
+
+    <div class="metric-row">
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-4">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Sessions By Channel"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric">
+                    <h2 class="metric-label"> SESSIONS BY CHANNEL </h2>
+                    <p class="metric-label">
+                        <canvas id="canvas-sessions-by-channel" class="chartjs chartjs-render-monitor" style="display: block; height: 270px; width: 500px;"></canvas>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+        <div class="col-12 col-sm-6 col-lg-4">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "Appointments"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric">
+                    <h2 class="metric-label"> APPOINTMENTS </h2>
+                    <p class="metric-label">
+                        <canvas id="canvas-appointments" class="chartjs chartjs-render-monitor" style="display: block; height: 270px; width: 500px;"></canvas>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+
+    </div>
+    <div class="metric-row">
+        <!-- metric column -->
+        <div class="col-12 col-sm-6 col-lg-4">
+            <!-- .metric -->
+            <div class="card-metric">
+                <i class="fa fa-info-circle fa-lg" aria-hidden="true"
+                   data-tile = "User Activity"
+                   data-toggle="modal" data-target="#infoModal"
+                   style = "position: absolute;top: 14px;
+                   left: 16px;z-index: 100;">
+                </i>
+                <div class="metric">
+                    <h2 class="metric-label"> USER ACIVITY </h2>
+                    <p class="metric-label">
+                        <canvas id="canvas-user-activity" class="chartjs chartjs-render-monitor" style="display: block; height: 270px; width: 500px;"></canvas>
+                    </p>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+
+    </div>
+    <div class="metric-row">
+        <div class="col-12 col-sm-6 col-lg-8">
+            <!-- .metric -->
+            <div class="card-metric">
+                <div class="metric">
+                    <figure class="">
+                        <div id="container"></div>
+                        <p class="highcharts-description " >
+                        </p>
+                    </figure>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+
+    </div>
+
+
+
+        <style>
+            .highcharts-figure, .highcharts-data-table table {
+                min-width: 360px;
+                max-width: 800px;
+                margin: 1em auto;
+            }
+
+            .highcharts-data-table table {
+                font-family: Verdana, sans-serif;
+                border-collapse: collapse;
+                border: 1px solid #EBEBEB;
+                margin: 10px auto;
+                text-align: center;
+                width: 100%;
+                max-width: 500px;
+            }
+            .highcharts-data-table caption {
+                padding: 1em 0;
+                font-size: 1.2em;
+                color: #555;
+            }
+            .highcharts-data-table th {
+                font-weight: 600;
+                padding: 0.5em;
+            }
+            .highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
+                padding: 0.5em;
+            }
+            .highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
+                background: #f8f8f8;
+            }
+            .highcharts-data-table tr:hover {
+                background: #f1f7ff;
+            }
+            .highcharts-credits {
+                display: none !important;
+            }
+            .highcharts-description.hide{
+                display: none !important;
+            }
+
+
+        </style>
+
+    <div class="metric-row">
+        <div class="col-12 col-sm-6 col-lg-8" >
+  <div class="card-metric ">
+        <div id="container1"></div>
+    </div>
+        </div>
+    </div>
+    <style>
+        #container {
+            height: 400px;
+        }
+
+
+        .highcharts-figure,
+        .highcharts-data-table table {
+            min-width: 310px;
+            max-width: 800px;
+            margin: 1em auto;
+        }
+
+        .highcharts-data-table table {
+            font-family: Verdana, sans-serif;
+            border-collapse: collapse;
+            border: 1px solid #ebebeb;
+            margin: 10px auto;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .highcharts-data-table caption {
+            padding: 1em 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .highcharts-data-table th {
+            font-weight: 600;
+            padding: 0.5em;
+        }
+
+        .highcharts-data-table td,
+        .highcharts-data-table th,
+        .highcharts-data-table caption {
+            padding: 0.5em;
+        }
+
+        .highcharts-data-table thead tr,
+        .highcharts-data-table tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+
+        .highcharts-data-table tr:hover {
+            background: #f1f7ff;
+        }
+
+    </style>
+
+    <div class="metric-row">
+        <div class="col-12 col-sm-6 col-lg-8">
+            <!-- .metric -->
+            <div class="card-metric">
+                <div class="metric">
+                    <figure class="">
+                        <div id="container2"></div>
+                        <p class="highcharts-description " >
+                        </p>
+                    </figure>
+                </div>
+            </div><!-- /.metric -->
+        </div><!-- /metric column -->
+
+    </div>
+        <% confirmed = Enum.reduce(@appointments,0, fn %{confirmed: f, count: c}, acc ->  if f,do: acc+c , else: acc end) %>
+    <% pending = Enum.reduce(@appointments,0, fn %{confirmed: f, count: c}, acc ->  if !f,do: acc+c , else: acc end) %>
+
+</div> </div>
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Dispositions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <%= for {name, count} <- @dispositions  |> Enum.group_by(&(&1.name),&(&1.count)) |> Enum.map(fn {k,v} -> {k,Enum.sum(v)} end) |> Enum.sort_by(fn {k,v} -> v end, fn a,b -> a>b end ) do %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <%= name %>
+                        <span class="badge badge-primary badge-pill"><%= count |> format_comma_numbers %></span>
+                    </li>
+                    <% end %>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button"  data-dismiss="modal" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exampleAssistLong" tabindex="-1" role="dialog" aria-labelledby="exampleAssistLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Assisted</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <%= if List.first(@automated_data) do%>
+                    <%= for intent <- @automated_data do%>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <%= intent.intent %>
+                        <span class="badge badge-primary badge-pill"><%= (intent.count/Enum.reduce(@automated_data, 0, fn %{count: x},acc -> x+acc end)) *100 |> Decimal.from_float() |> Decimal.round(1) %>%</span>
+                    </li>
+                    <% end %>
+                    <% else %>
+                    <span class="list-group-item d-flex justify-content-between align-items-center">No Assisted Yet</span>
+                    <% end %>
+                </ul>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button"  data-dismiss="modal" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleCallDeflectLong" tabindex="-1" role="dialog" aria-labelledby="exampleAssistLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Call deflected</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Response
+                        <span class="badge badge-primary badge-pill"> <%= @call_deflect_response %> </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Response Rate
+                        <span class="badge badge-primary badge-pill"> <%= @call_deflect_response_rate |> Decimal.from_float() |> Decimal.round(1) %>% </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Intents
+                        <span class="badge badge-primary badge-pill"> <%= @intent_after_call_deflect %> </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        New Leads
+                        <span class="badge badge-primary badge-pill"> <%= @new_leads_after_call_deflect |> Enum.count() %> </span>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button"  data-dismiss="modal" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleMissedCallLong" tabindex="-1" role="dialog" aria-labelledby="exampleAssistLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">MISSED CALL TEXTED</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Missed Call Rate
+                        <span class="badge badge-primary badge-pill"> <%= @missed_call_rate |> Decimal.from_float() |> Decimal.round(1) %>% </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Response
+                        <span class="badge badge-primary badge-pill"> <%= @missed_call_response %> </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Connect Rate
+                        <span class="badge badge-primary badge-pill"> <%= @missed_call_response_rate |> Decimal.from_float() |> Decimal.round(1) %>% </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Intents
+                        <span class="badge badge-primary badge-pill"> <%= @intent_after_missed_call %> </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        New Leads
+                        <span class="badge badge-primary badge-pill"> <%= @new_leads_after_missed_call |> Enum.count() %> </span>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button"  data-dismiss="modal" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exampleNewLeadsLong" tabindex="-1" role="dialog" aria-labelledby="exampleAssistLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">NEW LEADS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <%= if List.first(@new_leads_data) do%>
+                <ul class="list-group">
+                    <%= for lead <- @new_leads_data do%>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <%= case lead.intent do %>
+                        <% "salesQuestion" ->  %>
+                        Sales Question
+                        <span class="badge badge-primary badge-pill"> <%= lead.count %> </span>
+                        <% "getTour" ->  %>
+                        Tour Request
+                        <span class="badge badge-primary badge-pill"> <%= lead.count %> </span>
+                        <% "getTrialPass" ->  %>
+                        Trial Request
+                        <span class="badge badge-primary badge-pill"> <%= lead.count %> </span>
+                        <% "getGuestPass" ->  %>
+                        Guest Request
+                        <span class="badge badge-primary badge-pill"> <%= lead.count %> </span>
+                        <% "getMonthPass" ->  %>
+                        Month Pass
+                        <span class="badge badge-primary badge-pill"> <%= lead.count %> </span>
+                        <% "getDayPass" ->  %>
+                        Day Pass
+                        <span class="badge badge-primary badge-pill"> <%= lead.count %> </span>
+                        <% "getWeekPass" ->  %>
+                        Week Pass
+                        <span class="badge badge-primary badge-pill"> <%= lead.count %> </span>
+                        <% end %>
+                    </li>
+                    <% end %>
+                </ul>
+                    <% else %>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    No New Leads Yet
+                    </li>
+                </ul>
+                    <% end %>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button"  data-dismiss="modal" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script>
+    const ctx = document.getElementById('canvas-sessions-by-channel').getContext('2d');
+    const chartData = {
+        labels: [
+            'SMS',
+            'Email',
+            'Facebook',
+            'Web',
+            'App',
+            'Phone'
+        ],
+        datasets: [{
+            data: [
+                <%= @sms_totals %>,
+                <%= @email_totals %>,
+                <%= @facebook_totals %>,
+                <%= @web_totals %>,
+                <%= @app_totals %>,
+                <%= @call_totals%>
+            ],
+            borderWidth: 6,
+            backgroundColor: ['#2098d4', '#f8da50', '#9D17FA', '#2ECC40','#ff973d', '#ff1000'],
+            hoverBackgroundColor: ['#148fb5', '#f2d02b', '#C069FC', '#01FF70','#ff973d', '#D33311'],
+        }],
+    };
+    new Chart(ctx, {
+        type: 'pie',
+        data: chartData,
+        maintainAspectRatio: false,
+        responsive: true,
+        options: {
+            legend: {
+                display: true,
+                position: 'left'
+            },
+        },
+    });
+</script>
+<script>
+    const ctx2 = document.getElementById('canvas-appointments').getContext('2d');
+    const chartData2 = {
+        labels: [
+            'Confirmed',
+            'Pending'
+        ],
+        datasets: [{
+            data: [
+                <%= confirmed %>,
+                <%= pending %>,
+            ],
+            borderWidth: 5,
+            backgroundColor: [ '#2ECC40','#ff973d'],
+            hoverBackgroundColor: [ '#01FF70','#ff973d'],
+        }],
+    };
+    new Chart(ctx2, {
+        type: 'pie',
+        data: chartData2,
+        maintainAspectRatio: false,
+        responsive: true,
+        options: {
+            legend: {
+                display: true,
+                position: 'left'
+            },
+            tooltips: {
+                custom: function(tooltip) {
+                    tooltip.displayColors = false;
+                },
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        var labels = data.labels;
+                        var values = data.datasets[tooltipItem.datasetIndex].data;
+                        var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        var colour = data.datasets[tooltipItem.datasetIndex].backgroundColor
+                        var total = 0;
+                        for (var i in values) {
+                            total += values[i];
+                        }
+                        var totally = total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        var label = [];
+                        for (var j in labels) {
+                            var percentage = Math.round((values[j] / total) * 100);
+                            label.push (labels[j] + " : " + values[j].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' (' + percentage + '%)');
+                        }
+                        label.push("Total : " + totally)
+                        return label;
+                    }
+                }
+            }
+        },
+    });
+</script>
+<script>
+    const gtx = document.getElementById('canvas-user-activity').getContext('2d');
+    const chartData1 = {
+        labels: [
+            'New Users',
+            'Active Users'
+        ],
+        datasets: [{
+            data: [
+                <%= @new_user %>,
+                <%= @active_user %>
+            ],
+            borderWidth: 2,
+            backgroundColor: ['#F75159', '#29F31B'],
+            hoverBackgroundColor: ['#F75159', '#29F31B']
+        }],
+    };
+    new Chart(gtx, {
+        type: 'pie',
+        data: chartData1,
+        maintainAspectRatio: false,
+        responsive: true,
+        options: {
+            legend: {
+                display: true,
+                position: 'left'
+            },
+        },
+    });
+</script>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/boost.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script>
+    var startDate = new Date("<%=@line_graph_start_date%>");
+
+    Highcharts.chart('container', {
+
+        title: {
+            text: 'Sessions by Day and Channels'
+        },
+        exporting: {
+            buttons: {
+                contextButton: {
+                    menuItems: [
+                        'viewFullscreen',
+                        'printChart'
+                    ]
+                }
+            }
+        },
+
+        yAxis: {
+            title: {
+                text: 'No. of Sessions'
+            }
+        },
+
+        xAxis: {
+            type: 'datetime'
+        },
+
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+
+
+        plotOptions: {
+            series: {
+                pointStart: startDate.getTime(),
+                pointInterval: 24 * 3600 * 1000 // one day
+            }
+        },
+
+        series: [{
+            name: 'SMS',
+            data: [<%= Enum.join(@sms_totals_by_day, ",") %>]
+        }, {
+            name: 'Average',
+            data: [<%= Enum.join(@avg_totals_by_day, ",") %>]
+        }, {
+            name: 'Web',
+            data: [<%= Enum.join(@web_totals_by_day, ",") %>]
+        }, {
+            name: 'App',
+            data: [<%= Enum.join(@app_totals_by_day, ",") %>]
+        }, {
+            name: 'Facebook',
+            data: [<%= Enum.join(@facebook_totals_by_day, ",") %>]
+        },
+            {
+                name: 'Phone',
+                data: [<%= Enum.join(@call_totals_by_day, ",") %>]
+            },
+            {
+                name: 'Email',
+                data: [<%= Enum.join(@email_totals_by_day, ",") %>]
+            }],
+
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        },
+
+    });
+</script>
+<script>
+    sample="<%= @bar_graph %>".replace(/&quot;/g,'"');
+    const data = JSON.parse(sample);
+    function createSeries () {
+        let list = [];
+        for (const key in data){
+            if (key != "") list.push({name: key, data: data[key]});
+        }
+        return list;
+
+    }
+    startDate = new Date("<%=@bar_graph_start_date%>");
+    var seconds = (new Date()).getSeconds();
+    Highcharts.chart('container1', {
+        chart: {
+            type: 'column'
+        },
+        boost: {
+            useGPUTranslations: true,
+            seriesThreshold: 0
+        },
+        title: {
+            text: 'Disposition per day'
+        },
+        xAxis: {
+            type: 'datetime'  },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Dispositions'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        exporting: {
+            buttons: {
+                contextButton: {
+                    menuItems: [
+                        'viewFullscreen',
+                        'printChart'
+                    ]
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            x: -30,
+            verticalAlign: 'top',
+            y: 25,
+            floating: false,
+            backgroundColor:
+                Highcharts.defaultOptions.legend.backgroundColor || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+            shared: true
+    },
+        plotOptions: {
+            series: {
+                pointStart: startDate.getTime(),
+                pointInterval: 24 * 3600 * 1000 // one day
+            },
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        series: createSeries()
+    });
+    seconds = (new Date()).getSeconds();
+</script>
+
+<script>
+    var startDate = new Date("<%=@line_graph_start_date%>")
+    call_Deflected = data['Call Deflected']
+    call_deflected = data['Call deflected']
+    missed_call = data['Missed Call Texted']
+    call_transferred = data['Call Transferred']
+    call_hang_up = data['Call Hang Up']
+
+    leads = "<%= @new_leads_by_day %>".replace(/&quot;/g,'"');
+    const ldta = JSON.parse(leads)
+
+    leads_1 = "<%= @new_leads_by_day_1 %>".replace(/&quot;/g,'"');
+    const ldta_1 = JSON.parse(leads_1)
+
+    cd_res = "<%= @cd_res_per_day %>".replace(/&quot;/g,'"');
+    const cd_res_data = JSON.parse(cd_res)
+
+    mct_res = "<%= @mct_res_per_day %>".replace(/&quot;/g,'"');
+    const mct_res_data = JSON.parse(mct_res)
+    Highcharts.chart('container2', {
+
+        title: {
+            text: 'Phone Calls Line Graph'
+        },
+
+        exporting: {
+            buttons: {
+                contextButton: {
+                    menuItems: [
+                        'viewFullscreen',
+                        'printChart'
+                    ]
+                }
+            }
+        },
+
+        yAxis: {
+            title: {
+                text: 'No. of Calls'
+            }
+        },tooltip: {
+            formatter: function() {
+                let date = new Date(this.x)
+                let d = date.toISOString().split('T')
+                new_date = d[0]
+                let total;
+                switch(this.y){
+                case 0:
+                        total = 1;
+                        break;
+                default:
+                        total = this.y;
+                        break;
+                }
+                if(this.series.name == "Call Deflected")
+                {
+                    let new_leads = 0;
+                    let response = 0;
+                    if (ldta[new_date] == undefined){
+                        new_leads = 0;
+                    }
+                    else{
+                        new_leads = ldta[new_date]
+                    }
+                    if (cd_res_data[new_date] == undefined){
+                        response = 0;
+                    }
+                    else{
+                        response = cd_res_data[new_date]
+                    }
+                    return new Date(this.x).toDateString()+ '<br><br>' + 'New Leads:' + new_leads +
+                        '<br>' + 'Response Rate: ' + ((response/total)*100).toPrecision(3) + '%'
+                }
+                else if (this.series.name == "Call deflected"){
+
+                    let new_leads = 0;
+                    let response = 0;
+                    if (ldta[new_date] == undefined){
+                        new_leads = 0;
+                    }
+                    else{
+                        new_leads = ldta[new_date]
+                    }
+                    if (cd_res_data[new_date] == undefined){
+                        response = 0;
+                    }
+                    else{
+                        response = cd_res_data[new_date]
+                    }
+                    return new Date(this.x).toDateString()+ '<br><br>' +'New Leads:' + new_leads +
+                        '<br>' + 'Response Rate: ' + ((response/total)*100).toPrecision(3) + '%'
+                }
+                else if (this.series.name == "Missed Call Saved")
+                {
+                    let new_leads = 0;
+                    let response = 0;
+                    if(ldta_1[new_date] == undefined)
+                    {
+                        new_leads = 0;
+                    }
+                    else{
+                        new_leads = ldta_1[new_date]
+                    }
+                    if (mct_res_data[new_date] == undefined){
+                        response = 0;
+                    }
+                    else{
+                        response = mct_res_data[new_date]
+                    }
+                    return new Date(this.x).toDateString()+ '<br><br>' + 'New Leads:' + new_leads +
+                        '<br>' + 'Response Rate: ' + ((response/total)*100).toPrecision(3) + '%'
+                }
+                else if (this.series.name == "Call Hang Up"){
+                    return new Date(this.x).toDateString() + '<br><br>' + 'Call Hang Up: ' + this.y
+                }
+                else if (this.series.name == "Call Transferred"){
+                    return new Date(this.x).toDateString() + '<br><br>' + 'Call Transferred: ' + this.y
+                }
+            },
+            share: true
+            },
+
+        xAxis: {
+            type: 'datetime'
+        },
+
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+
+
+        plotOptions: {
+            series: {
+                pointStart: startDate.getTime(),
+                pointInterval: 24 * 3600 * 1000 // one day
+            }
+        },
+
+        series: [
+            {
+                name: 'Call Deflected',
+                data: call_Deflected
+            },
+            {
+                name: 'Call deflected',
+                data: call_deflected
+            },
+            {
+                name: 'Missed Call Saved',
+                data: missed_call
+            },
+            {
+                name: 'Call Transfered',
+                data: call_transferred
+            },
+            {
+                name: 'Call Hang Up',
+                data: call_hang_up
+            }
+        ],
+
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        },
+
+    });
+</script>
+
+
+
+<script>
+    if (document.getElementById("locations").options.length != 0){
+        window.addEventListener("load",function(){
+            document.getElementById("selectDiv").style.display = "block";
+        });}
+</script>
+<script>
+
+    function locationDropdown () {
+        document.getElementById("selectDiv").style.display = "none";
+
+        document.getElementById("team_id").onchange=function () {
+            document.getElementById('locations').innerText = null;
+            if (document.getElementById("team_id").value 
+                -99) document.getElementById("selectDiv").style.display = "none";
+            else
+                document.getElementById("selectDiv").style.display = "block";
+            document.getElementById("locations").disabled = false;
+            var arr = document.getElementById("team_id").value.split("--");
+            var locationDropdown=  document.getElementById("locations");
+            var val = $(this).val();
+            for (var i = 0; i < arr.length-1; i++) {
+                var arr2=arr[i].split(",")
+                var opt = document.createElement('option');
+                opt.value = arr2[0];
+                opt.innerHTML = arr2[1];
+                locationDropdown.appendChild(opt);
+                opt.selected = "true";
+            }
+            $('.selectpicker').selectpicker('refresh');
+        };
+    };
+    locationDropdown()
+
+</script>
+<div class="modal" id = "infoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Info</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id = "infoPara">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#infoModal').on('show.bs.modal', function(e) {
+        //get data-id attribute of the clicked element
+        var tileName = $(e.relatedTarget).data('tile');
+        switch(tileName){
+            case "Dispositions":
+                $(e.currentTarget).find(".modal-body").append('<p> The breakdown of what customers are asking about ("Trending Topics").</p>');
+                break;
+            case "Avg. Per Day":
+                $(e.currentTarget).find(".modal-body").append('<p> The average number of daily customer inquiries.</p>');
+                break;
+            case "Responsiveness":
+                $(e.currentTarget).find(".modal-body").append('<p> The time it takes for your staff to respond to customers.</p>');
+                break;
+            case "Calls Deflected Percentage":
+                $(e.currentTarget).find(".modal-body").append('<p> The number of calls deflected divided by total inbound calls.</p>');
+                break;
+            case "Assisted Percentage":
+                $(e.currentTarget).find(".modal-body").append('<p> The number of times the Ai assistant responded to a customer message divided by total inbound customer messages.</p>');
+                break;
+            case "Tickets":
+                $(e.currentTarget).find(".modal-body").append('<p> The number of New, Open, and Pending tickets in your queue.</p>');
+                break;
+            case "Missed Calls Texted":
+                $(e.currentTarget).find(".modal-body").append('<p> The number of times the Ai Assistant texted a missed caller.</p>');
+                break;
+            case "New Leads":
+                $(e.currentTarget).find(".modal-body").append('<p> The sum of users who qualified by asking a sales-related question.</p>');
+                break;
+            case "Sessions By Channel":
+                $(e.currentTarget).find(".modal-body").append('<p> The breakdown of where your conversations are happening.</p>');
+                break;
+            case "Appointments":
+                $(e.currentTarget).find(".modal-body").append('<p> The number of customers who started to book an appointment with you versus total confirmed bookings.</p>');
+                break;
+            case "User Activity":
+                $(e.currentTarget).find(".modal-body").append('<p> The number of new users versus total active users.</p>');
+                break;
+            case "Trending Channels":
+                $(e.currentTarget).find(".modal-body").append('<p> The breakdown of where your conversations are happening.</p>');
+                break;
+            case "Trending Topics":
+                $(e.currentTarget).find(".modal-body").append('<p> The breakdown of what customers are asking about ("Dispositions").</p>');
+                break;
+
+            default:
+                $(e.currentTarget).find(".modal-body").append('<p> Information</p>');
+                break;
+
+        };
+
+        //populate the textbox
+    });
+
+    $('#infoModal').on('hidden.bs.modal', function () {
+        $("#infoPara").children().remove()
+    })
+</script>

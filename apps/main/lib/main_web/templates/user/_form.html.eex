@@ -1,0 +1,127 @@
+  <div class="panel-body">
+    <section id="base-style" class="card">
+        <div class="card-body">
+            <%= form_for @data, @action, [multipart: true], fn f -> %>
+                <fieldset>
+                    <span>
+                        <%= if @data.data.avatar && @data.data.avatar != "" do %> 
+                            <img id="avatar" src="<%= @data.data.avatar %>" height="40" width="40" >
+                            <a id="removeImage" href="#">Remove</a>
+                        <% end %>
+                        <div class="form-group">
+                            <%= label f, :image, "Avatar", class: "control-label" %>
+                            <div class="custom-file">
+                                <%= file_input f, :image, class: "custom-file-input", multiple: "" %> <label class="custom-file-label" for="tf3">Choose file</label>
+                            </div>
+                        </div>
+
+                    </span>
+
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12 col-lg-6">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <%= text_input f, :first_name, class: "form-control" %>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12 col-lg-6">
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <%= text_input f, :last_name, class: "form-control" %>
+                                <%#= error_tag @errors, :website %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12 col-lg-6">
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <%= text_input f, :phone_number, class: "form-control" %>
+                                <%#= error_tag @errors, :website %>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12 col-lg-6">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <%= text_input f, :email, class: "form-control" %>
+                                <%#= error_tag @errors, :website %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="mb-4">
+                    <div class="row mt-4">
+                        <div class="col-sm-6 col-xs-12 col-lg-6">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <%= checkbox f, :use_email, class: "custom-control-input" %>
+                                    <label class="custom-control-label" for="user_use_email">Use Email</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <%= checkbox f, :use_sms, class: "custom-control-input" %>
+                                    <input class="custom-control-input" id="user_use_sms" name="user[use_sms]" type="checkbox" value="true">
+                                    <label class="custom-control-label" for="user_use_sms">Use SMS</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="mb-4">
+                    <div class="row">
+                        <div class="col-sm-12 col-xs-12 col-lg-12">
+                            <div class="form-group">
+                                <h3>Do Not Disturb</h3>
+                                <p>When Do Not Disturb is turned on, Healthdesk won't send you any notifications. Your messages will still be available when you log in.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-sm-6 col-xs-12 col-lg-12">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <%= checkbox f, :use_do_not_disturb, class: "custom-control-input" %>
+                                    <label class="custom-control-label" for="user_use_do_not_disturb">Automatically disable notifications from:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12 col-lg-3">
+                            <div class="form-group">
+                                <div class="form-label-group">
+                                    <label for="user_start_do_not_disturb">Starting Time</label>
+                                    <%= select f, :start_do_not_disturb, available_times(), class: "custom-select" %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12 col-lg-3">
+                            <div class="form-group">
+                                <div class="form-label-group">
+                                    <label for="user_end_do_not_disturb">Ending Time</label>
+                                    <%= select f, :end_do_not_disturb, available_times(), class: "custom-select" %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12 col-lg-6">
+                            <div class="form-group">
+                                <div class="form-label-group">
+                                    <label for="time_zone">Time Zone</label>
+                                    <select class="custom-select" id="time_zone" name="user[time_zone]">
+                                        <option value="PST">Pacific Standard Time</option>
+                                        <option value="MST">Mountain Standard Time</option>
+                                        <option value="CST">Central Standard Time</option>
+                                        <option value="EST">Eastern Standard Time</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="mb-4">
+                    <div class="row mt-3">
+                        <div class="col-sm-6 col-xs-12 col-lg-6">
+                            <%= submit "Save", class: "btn btn-block btn-primary" %>
+                        </div>
+                    </div>
+                </fieldset>
+            <% end %>
+        </div>
+    </section>
+</div>
